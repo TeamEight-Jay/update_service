@@ -69,5 +69,26 @@ public class DatabaseUpdateService {
         {
             categoryCorrelationRepository.save(surgeCategoryMapping.get(userId));
         }
+
+        for(String userId: surgeUserMapping.keySet())
+        {
+            UserMappingEntity databaseUserMapping=userCorrelationRepository.findOne(userId);
+
+            if(databaseUserMapping==null) continue;
+
+            for(String followedUserId : surgeUserMapping.get(userId).getMappedUsers().keySet())
+            {
+                double updatedValue=surgeUserMapping.get(userId).getMappedUsers().get(followedUserId) +
+                        (USER_UPDATE_FACTOR * databaseUserMapping.getMappedUsers().getOrDefault(followedUserId,0.0));
+                surgeUserMapping.get(userId).getMappedUsers().put(followedUserId,updatedValue);
+            }
+
+        }
+        for(String userId:surgeUserMapping.keySet())
+        {
+            userCorrelationRepository.save(surgeUserMapping.get(userId));
+        }
+
+
     }
 }
