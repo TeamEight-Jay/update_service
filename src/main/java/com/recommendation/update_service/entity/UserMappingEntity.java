@@ -14,6 +14,16 @@ public class UserMappingEntity {
 
     private HashMap<String,Double> mappedUsers;
 
+    public UserMappingEntity() {
+        mappedUsers= new HashMap<String, Double>();
+    }
+
+    public UserMappingEntity(String userId) {
+        this.userId = userId;
+        mappedUsers= new HashMap<String, Double>();
+    }
+
+
     public String getUserId() {
         return userId;
     }

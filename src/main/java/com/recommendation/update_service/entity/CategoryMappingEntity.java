@@ -13,6 +13,15 @@ public class CategoryMappingEntity {
 
     private HashMap<String,Double> categories;
 
+    public CategoryMappingEntity() {
+        categories=new HashMap<String,Double>();
+    }
+
+    public CategoryMappingEntity(String userId) {
+        this.userId = userId;
+        categories=new HashMap<String,Double>();
+    }
+
 
     public String getUserId() {
         return userId;

@@ -7,9 +7,11 @@ import com.recommendation.update_service.repository.CategoryCorrelationRepositor
 import com.recommendation.update_service.repository.UserCorrelationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 
+@Service
 public class DatabaseUpdateService {
 
 
@@ -23,11 +25,11 @@ public class DatabaseUpdateService {
     CategoryCorrelationRepository categoryCorrelationRepository;
 
 
-    @Autowired
-    private HashMap<String,CategoryMappingEntity> surgeCategoryMapping;
+    private HashMap<String,CategoryMappingEntity> surgeCategoryMapping=new HashMap<String,CategoryMappingEntity>();
 
-    @Autowired
-    private HashMap<String,UserMappingEntity> surgeUserMapping;
+
+    private HashMap<String,UserMappingEntity> surgeUserMapping=new HashMap<String,UserMappingEntity>();
+
 
     public HashMap<String, CategoryMappingEntity> getSurgeCategoryMapping() {
         return surgeCategoryMapping;
@@ -63,12 +65,22 @@ public class DatabaseUpdateService {
                 surgeCategoryMapping.get(userId).getCategories().put(categoryId,updatedValue);
             }
 
+            for(String dbCategoryId: databaseMapping.getCategories().keySet())
+            {
+                if(!surgeCategoryMapping.get(userId).getCategories().containsKey(dbCategoryId))
+                {
+                    surgeCategoryMapping.get(userId).getCategories().put(dbCategoryId,databaseMapping.getCategories().get(dbCategoryId));
+                }
+            }
+
         }
+
 
         for(String userId:surgeCategoryMapping.keySet())
         {
             categoryCorrelationRepository.save(surgeCategoryMapping.get(userId));
         }
+
 
         for(String userId: surgeUserMapping.keySet())
         {
@@ -83,11 +95,22 @@ public class DatabaseUpdateService {
                 surgeUserMapping.get(userId).getMappedUsers().put(followedUserId,updatedValue);
             }
 
+            for(String dbUserId: databaseUserMapping.getMappedUsers().keySet())
+            {
+                if(!surgeUserMapping.get(userId).getMappedUsers().containsKey(dbUserId))
+                {
+                    surgeUserMapping.get(userId).getMappedUsers().put(dbUserId,databaseUserMapping.getMappedUsers().get(dbUserId));
+                }
+            }
+
         }
         for(String userId:surgeUserMapping.keySet())
         {
             userCorrelationRepository.save(surgeUserMapping.get(userId));
         }
+
+        surgeCategoryMapping.clear();
+        surgeUserMapping.clear();
 
 
     }
