@@ -3,7 +3,7 @@ package com.recommendation.update_service.dto;
 public class UpdateMessage {
 
     private String target;
-    private int updateValue;
+    private double updateValue;
     private String updateUnit;
     private String rowId;
     private String columnId;
@@ -16,11 +16,11 @@ public class UpdateMessage {
         this.target = target;
     }
 
-    public int getUpdateValue() {
+    public double getUpdateValue() {
         return updateValue;
     }
 
-    public void setUpdateValue(int updateValue) {
+    public void setUpdateValue(double updateValue) {
         this.updateValue = updateValue;
     }
 

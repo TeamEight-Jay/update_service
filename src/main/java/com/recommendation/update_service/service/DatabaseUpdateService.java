@@ -2,8 +2,10 @@ package com.recommendation.update_service.service;
 
 
 import com.recommendation.update_service.entity.CategoryMappingEntity;
+import com.recommendation.update_service.entity.TrendMappingEntity;
 import com.recommendation.update_service.entity.UserMappingEntity;
 import com.recommendation.update_service.repository.CategoryCorrelationRepository;
+import com.recommendation.update_service.repository.TrendingCorrelationRepository;
 import com.recommendation.update_service.repository.UserCorrelationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,6 +19,7 @@ public class DatabaseUpdateService {
 
     private static final double CATEGORY_UPDATE_FACTOR = 0.1;
     private static final double USER_UPDATE_FACTOR = 0.2;
+    private static final double TREND_UPDATE_FACTOR = 0.2;
 
     @Autowired
     UserCorrelationRepository userCorrelationRepository;
@@ -24,11 +27,16 @@ public class DatabaseUpdateService {
     @Autowired
     CategoryCorrelationRepository categoryCorrelationRepository;
 
+    @Autowired
+    TrendingCorrelationRepository trendingCorrelationRepository;
+
 
     private HashMap<String,CategoryMappingEntity> surgeCategoryMapping=new HashMap<String,CategoryMappingEntity>();
 
 
     private HashMap<String,UserMappingEntity> surgeUserMapping=new HashMap<String,UserMappingEntity>();
+
+    private TrendMappingEntity trendMapping=new TrendMappingEntity();
 
 
     public HashMap<String, CategoryMappingEntity> getSurgeCategoryMapping() {
@@ -45,6 +53,14 @@ public class DatabaseUpdateService {
 
     public void setSurgeUserMapping(HashMap<String, UserMappingEntity> surgeUserMapping) {
         this.surgeUserMapping = surgeUserMapping;
+    }
+
+    public TrendMappingEntity getTrendMapping() {
+        return trendMapping;
+    }
+
+    public void setTrendMapping(TrendMappingEntity trendMapping) {
+        this.trendMapping = trendMapping;
     }
 
     @Scheduled(fixedDelay = 5000)
@@ -109,9 +125,28 @@ public class DatabaseUpdateService {
             userCorrelationRepository.save(surgeUserMapping.get(userId));
         }
 
+
+        TrendMappingEntity databaseTrending=trendingCorrelationRepository.findOne(trendMapping.getTrendId());
+
+        if(databaseTrending!=null)
+        {
+            for(String categoryId:trendMapping.getCategories().keySet())
+            {
+                double currentDBValue=databaseTrending.getCategories().getOrDefault(categoryId,0.0);
+                currentDBValue+=trendMapping.getCategories().get(categoryId);
+                databaseTrending.getCategories().put(categoryId,currentDBValue);
+            }
+            trendingCorrelationRepository.save(databaseTrending);
+        }
+        else
+        {
+            trendingCorrelationRepository.save(trendMapping);
+        }
+
         surgeCategoryMapping.clear();
         surgeUserMapping.clear();
-
+        trendMapping.getCategories().clear();
 
     }
+
 }
