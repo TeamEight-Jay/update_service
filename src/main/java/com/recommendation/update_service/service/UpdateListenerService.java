@@ -2,6 +2,7 @@ package com.recommendation.update_service.service;
 
 import com.recommendation.update_service.dto.UpdateMessage;
 import com.recommendation.update_service.entity.CategoryMappingEntity;
+import com.recommendation.update_service.entity.TrendMappingEntity;
 import com.recommendation.update_service.entity.UserMappingEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -63,6 +64,25 @@ public class UpdateListenerService {
                 updateValue+=currentValue;
             }
             databaseUpdateService.getSurgeUserMapping().get(userId).getMappedUsers().put(otherUserId,updateValue);
+        }
+
+        else if(updateMessage.getTarget().equals("TRENDING"))
+        {
+            String userId=updateMessage.getRowId();
+            String categoryId=updateMessage.getColumnId();
+            double updateValue=updateMessage.getUpdateValue();
+            TrendMappingEntity trend=databaseUpdateService.getTrendMapping();
+            double currentValue=trend.getCategories().getOrDefault(categoryId,0.0);
+            if(updateMessage.getUpdateUnit().equals("PERCENTAGE"))
+            {
+                updateValue=(currentValue)*(1+updateValue);
+            }
+            else
+            {
+                updateValue+=currentValue;
+            }
+            databaseUpdateService.getTrendMapping().getCategories().put(categoryId,updateValue);
+
         }
     }
 
