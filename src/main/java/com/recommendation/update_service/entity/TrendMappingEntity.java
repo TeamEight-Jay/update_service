@@ -16,6 +16,7 @@ public class TrendMappingEntity {
 
     public TrendMappingEntity() {
         this.trendId="trending";
+        categories=new HashMap<String, Double>();
     }
 
     public String getTrendId() {
