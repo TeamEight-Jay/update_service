@@ -126,21 +126,19 @@ public class DatabaseUpdateService {
         }
 
 
-        TrendMappingEntity databaseTrending=trendingCorrelationRepository.findOne(trendMapping.getTrendId());
+        if(trendMapping.getCategories().size()>0) {
+            TrendMappingEntity databaseTrending = trendingCorrelationRepository.findOne(trendMapping.getTrendId());
 
-        if(databaseTrending!=null)
-        {
-            for(String categoryId:trendMapping.getCategories().keySet())
-            {
-                double currentDBValue=databaseTrending.getCategories().getOrDefault(categoryId,0.0);
-                currentDBValue+=trendMapping.getCategories().get(categoryId);
-                databaseTrending.getCategories().put(categoryId,currentDBValue);
+            if (databaseTrending != null) {
+                for (String categoryId : trendMapping.getCategories().keySet()) {
+                    double currentDBValue = databaseTrending.getCategories().getOrDefault(categoryId, 0.0);
+                    currentDBValue += trendMapping.getCategories().get(categoryId);
+                    databaseTrending.getCategories().put(categoryId, currentDBValue);
+                }
+                trendingCorrelationRepository.save(databaseTrending);
+            } else {
+                trendingCorrelationRepository.save(trendMapping);
             }
-            trendingCorrelationRepository.save(databaseTrending);
-        }
-        else
-        {
-            trendingCorrelationRepository.save(trendMapping);
         }
 
         surgeCategoryMapping.clear();
